@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "Prisma.prisma",
+    "esbenp.prettier-vscode"
+  ]
+}
