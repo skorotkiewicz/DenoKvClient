@@ -1,9 +1,5 @@
 # DenoKvClient - Wrapper for Deno KV
 
-> [!NOTE]  
-> I found a better project that supports almost all operations like Prisma for Deno KV, I recommend: [pentagon by skoshx](https://github.com/skoshx/pentagon)
-> When I created this project, I didn't know about it yet.
-
 A simple client wrapper for the Deno KV (Key-Value) store, written in JavaScript. This library provides a convenient way to interact with the Deno KV service, with support for creating, reading, updating, and deleting data.
 
 ## Installation
@@ -82,9 +78,7 @@ const updatedUser = await client.users.update({
 });
 console.log(updatedUser);
 
-//////////////////////////////////////////
 ////////////// matchesWhere //////////////
-//////////////////////////////////////////
 
 // Find users with email starting with "john"
 const usersStartingWithJohn = await client.users.findMany({
