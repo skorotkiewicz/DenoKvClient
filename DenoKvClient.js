@@ -64,7 +64,11 @@ export class DenoKvClient {
 
     this.initPromise = (async () => {
       try {
-        this.kv = await openKv(url, { accessToken });
+        if (url && accessToken) {
+          this.kv = await openKv(url, { accessToken });
+        } else {
+          this.kv = await Deno.openKv();
+        }
         this.initialized = true;
       } catch (error) {
         this.initPromise = null;
