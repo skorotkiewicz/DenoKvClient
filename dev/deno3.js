@@ -191,6 +191,8 @@ export class DenoKvClient {
       },
 
       async update({ where, data, select = {}, include = {} }) {
+        await self.initPromise;
+
         const key = DenoKvClient.getKey(collectionName, where);
         const existingData = await this.findUnique({ where });
 
@@ -206,7 +208,7 @@ export class DenoKvClient {
           });
 
           const relatedUpdates = {};
-          const relations = schema.getRelations(collectionName);
+          const relations = self.schema.getRelations(collectionName);
 
           for (const [relationName, relationConfig] of Object.entries(
             relations
@@ -228,8 +230,9 @@ export class DenoKvClient {
             }
           }
 
-          await kv.set(key, updatedData);
-          return this._processResult(
+          await self.kv.set(key, updatedData);
+          return self._processResult.call(
+            self,
             { ...updatedData, ...relatedUpdates },
             { select, include },
             collectionName
@@ -243,6 +246,8 @@ export class DenoKvClient {
       },
 
       async delete({ where, select = {} }) {
+        await self.initPromise;
+
         const key = DenoKvClient.getKey(collectionName, where);
         const existingData = await this.findUnique({ where });
 
@@ -250,41 +255,75 @@ export class DenoKvClient {
           return null;
         }
 
-        const relations = schema.getRelations(collectionName);
+        try {
+          const relations = self.schema.getRelations(collectionName);
 
-        for (const [relationName, relationConfig] of Object.entries(
-          relations
-        )) {
-          if (Array.isArray(relationConfig)) {
-            const [targetModel, targetSchema, localKey, foreignKey] =
-              relationConfig;
-            await self[targetModel].deleteMany({
-              where: { [foreignKey]: existingData.id },
-            });
+          // Delete related records first, but only if they exist
+          for (const [relationName, relationConfig] of Object.entries(
+            relations
+          )) {
+            if (Array.isArray(relationConfig)) {
+              const [targetModel, targetSchema, localKey, foreignKey] =
+                relationConfig;
+              const targetNamespace =
+                self.namespaces.get(targetModel) || self.namespace(targetModel);
+
+              // Use list to find and delete related records
+              const prefix = [targetModel];
+              const entries = self.kv.list({ prefix });
+
+              for await (const entry of entries) {
+                if (entry.value[foreignKey] === existingData.id) {
+                  await self.kv.delete(entry.key);
+                }
+              }
+            }
           }
-        }
 
-        await kv.delete(key);
-        return DenoKvClient.applySelect(existingData, select);
+          // Delete the main record
+          await self.kv.delete(key);
+
+          // Apply select if specified
+          const result = {};
+          if (Object.keys(select).length > 0) {
+            for (const [field, included] of Object.entries(select)) {
+              if (included && field in existingData) {
+                result[field] = existingData[field];
+              }
+            }
+            return result;
+          }
+
+          return existingData;
+        } catch (error) {
+          throw new Error(`Error deleting record: ${error.message}`);
+        }
       },
 
       async deleteMany({ where = {} }) {
+        await self.initPromise;
+
         const prefix = [collectionName];
-        const entries = kv.list({ prefix });
+        const entries = self.kv.list({ prefix });
         let count = 0;
 
-        for await (const entry of entries) {
-          const item = entry.value;
-          if (DenoKvClient.matchesWhere(item, where)) {
-            await kv.delete(entry.key);
-            count++;
+        try {
+          for await (const entry of entries) {
+            if (DenoKvClient.matchesWhere(entry.value, where)) {
+              await self.kv.delete(entry.key);
+              count++;
+            }
           }
-        }
 
-        return { count };
+          return { count };
+        } catch (error) {
+          throw new Error(`Error deleting records: ${error.message}`);
+        }
       },
 
       async upsert({ where, create, update, select = {}, include = {} }) {
+        await self.initPromise;
+
         const existing = await this.findUnique({ where });
 
         if (existing) {
