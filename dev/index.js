@@ -99,6 +99,20 @@ const order = {
     // });
     // console.log("User with orders:", userWithOrders);
 
+    // // Upsert user
+    // const upsertedUser = await client.users.upsert({
+    //   where: { id: user.id },
+    //   create: {
+    //     name: "John Doe",
+    //     email: "john@example.com",
+    //     createdAt: new Date(),
+    //   },
+    //   update: {
+    //     name: "John Smith",
+    //   },
+    // });
+    // console.log("Upserted user:", upsertedUser);
+
     // // Update user
     // const updatedUser = await client.users.update({
     //   where: { id: user.id },
