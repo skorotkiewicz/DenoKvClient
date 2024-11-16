@@ -190,6 +190,119 @@ export class DenoKvClient {
         };
       },
 
+      async update({ where, data, select = {}, include = {} }) {
+        const key = DenoKvClient.getKey(collectionName, where);
+        const existingData = await this.findUnique({ where });
+
+        if (!existingData) {
+          return null;
+        }
+
+        try {
+          const updatedData = modelSchema.parse({
+            ...existingData,
+            ...data,
+            updatedAt: new Date(),
+          });
+
+          const relatedUpdates = {};
+          const relations = schema.getRelations(collectionName);
+
+          for (const [relationName, relationConfig] of Object.entries(
+            relations
+          )) {
+            if (data[relationName]) {
+              const [targetModel, targetSchema, localKey, foreignKey] =
+                relationConfig;
+              if (Array.isArray(data[relationName])) {
+                relatedUpdates[relationName] = await Promise.all(
+                  data[relationName].map((item) =>
+                    self[targetModel].upsert({
+                      where: { id: item.id },
+                      create: { ...item, [foreignKey]: existingData.id },
+                      update: item,
+                    })
+                  )
+                );
+              }
+            }
+          }
+
+          await kv.set(key, updatedData);
+          return this._processResult(
+            { ...updatedData, ...relatedUpdates },
+            { select, include },
+            collectionName
+          );
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            throw new Error(`Validation error in update: ${error.message}`);
+          }
+          throw error;
+        }
+      },
+
+      async delete({ where, select = {} }) {
+        const key = DenoKvClient.getKey(collectionName, where);
+        const existingData = await this.findUnique({ where });
+
+        if (!existingData) {
+          return null;
+        }
+
+        const relations = schema.getRelations(collectionName);
+
+        for (const [relationName, relationConfig] of Object.entries(
+          relations
+        )) {
+          if (Array.isArray(relationConfig)) {
+            const [targetModel, targetSchema, localKey, foreignKey] =
+              relationConfig;
+            await self[targetModel].deleteMany({
+              where: { [foreignKey]: existingData.id },
+            });
+          }
+        }
+
+        await kv.delete(key);
+        return DenoKvClient.applySelect(existingData, select);
+      },
+
+      async deleteMany({ where = {} }) {
+        const prefix = [collectionName];
+        const entries = kv.list({ prefix });
+        let count = 0;
+
+        for await (const entry of entries) {
+          const item = entry.value;
+          if (DenoKvClient.matchesWhere(item, where)) {
+            await kv.delete(entry.key);
+            count++;
+          }
+        }
+
+        return { count };
+      },
+
+      async upsert({ where, create, update, select = {}, include = {} }) {
+        const existing = await this.findUnique({ where });
+
+        if (existing) {
+          return this.update({
+            where,
+            data: update,
+            select,
+            include,
+          });
+        } else {
+          return this.create({
+            data: create,
+            select,
+            include,
+          });
+        }
+      },
+
       async count({ where = {} }) {
         await self.initPromise;
 

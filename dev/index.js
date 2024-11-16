@@ -66,28 +66,28 @@ const order = {
   // console.log("User with orders:", data);
 
   // Find order with its user
-  const orderWithUser = await client.users.findUnique({
-    where: { id: user.id },
+  const orderWithUser = await client.orders.findUnique({
+    where: { id: "21f543aa-6028-448d-a065-8b12e9127424" },
     include: {
-      orders: true,
+      user: true,
     },
   });
   console.log("Order with user:", orderWithUser);
 
-  // // Find order with its user
-  // const test = await client.users.findMany({
-  //   where: { name: "John Doe" },
-  //   include: {
-  //     orders: true,
-  //   },
-  //   // take: 2,
-  //   // skip: 1,
-  //   // select: {
-  //   //   id: true,
-  //   //   name: true,
-  //   // },
-  // });
-  // console.log("test:", test);
+  // Find order with its user
+  const test = await client.users.findMany({
+    where: { name: "John Doe" },
+    include: {
+      orders: true,
+    },
+    take: 2,
+    skip: 1,
+    // select: {
+    //   id: true,
+    //   name: true,
+    // },
+  });
+  console.log("test:", test);
 })();
 
 // (async () => {
