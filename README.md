@@ -23,7 +23,38 @@ import { DenoKvClient } from "./DenoKvClient.js";
 2. Initialize the client with the Deno KV service URL and an access token:
 
 ```js
-const client = new DenoKvClient();
+// Define your schemas
+export const User = z.object({
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+export const Order = z.object({
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
+  name: z.string(),
+  userId: z.string().uuid(),
+});
+
+// Define schemas with relationscd
+const schema = createSchema().model({
+  users: {
+    schema: User,
+    relations: {
+      orders: ["orders", [Order], "id", "userId"],
+    },
+  },
+  orders: {
+    schema: Order,
+    relations: {
+      user: ["users", User, "userId", "id"],
+    },
+  },
+});
+
+const client = new DenoKvClient(schema);
 await client.init("http://0.0.0.0:4512", "your_access_token_here");
 ```
 
