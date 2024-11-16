@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DenoKvClient, createSchema } from "./deno10.js"; //deno3.js
+import { DenoKvClient, createSchema } from "./deno3.js"; //deno3.js
 import "dotenv/config";
 import { v4 as uuidv4 } from "uuid";
 
