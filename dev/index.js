@@ -5,15 +5,15 @@ import { v4 as uuidv4 } from "uuid";
 
 // Define your schemas
 export const User = z.object({
-  id: z.string().uuid().describe("primary"),
-  createdAt: z.date(),
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
   name: z.string(),
   email: z.string().email(),
 });
 
 export const Order = z.object({
-  id: z.string().uuid().describe("primary"),
-  createdAt: z.date(),
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
   name: z.string(),
   userId: z.string().uuid(),
 });
@@ -39,15 +39,15 @@ const client = new DenoKvClient(schema);
 await client.init("http://0.0.0.0:4512", process.env.TOKEN);
 
 const user = {
-  id: "23aeed36-ed9a-42fb-8f12-a4766e974d33",
   name: "John Doe",
   email: "john@example.com",
+  id: "e0158261-337f-4320-8176-08aaf66c805a",
 };
 
 const order = {
-  id: "1dfddb17-caa0-4b31-92c7-57fd65c7fa87",
   name: "Order #1",
-  userId: "23aeed36-ed9a-42fb-8f12-a4766e974d33",
+  userId: "e0158261-337f-4320-8176-08aaf66c805a",
+  id: "984556ef-7fac-4add-8611-bc181ae95007",
 };
 
 // Example usage
@@ -67,8 +67,8 @@ const order = {
     // // Create an order for the user
     // const order = await client.orders.create({
     //   data: {
-    //     id: uuidv4(),
-    //     createdAt: new Date(),
+    //     // id: uuidv4(),
+    //     // createdAt: new Date(),
     //     name: "Order #1",
     //     userId: user.id,
     //   },

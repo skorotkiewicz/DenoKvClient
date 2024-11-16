@@ -77,7 +77,7 @@ export class DenoKvClient {
 
   async close() {
     if (this.kv) {
-      await this.kv.close();
+      this.kv.close();
       this.initialized = false;
       this.initPromise = null;
     }
