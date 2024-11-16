@@ -81,6 +81,33 @@ const updatedUser = await client.users.update({
   },
 });
 console.log(updatedUser);
+
+//////////////////////////////////////////
+////////////// matchesWhere //////////////
+//////////////////////////////////////////
+
+// Find users with email starting with "john"
+const usersStartingWithJohn = await client.users.findMany({
+  where: {
+    email: {
+      startsWith: "john",
+    },
+  },
+});
+console.log("Users with email starting with 'john':", usersStartingWithJohn);
+
+// Filtered users
+const filteredUsers = await client.users.findMany({
+  where: {
+    name: {
+      contains: "John", // name contains "John"
+    },
+    email: {
+      endsWith: "@example.com", // email ends with "@example.com"
+    },
+  },
+});
+console.log("Filtered users:", filteredUsers);
 ```
 
 ## Features
