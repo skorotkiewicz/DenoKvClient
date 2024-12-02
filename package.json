@@ -1,13 +1,44 @@
 {
   "name": "denokvclient",
-  "type": "module",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "description": "A simple client wrapper for the Deno KV (Key-Value) store.",
+  "scripts": {
+    "rollup": "rollup -c"
+  },
+  "author": "Sebastian Korotkiewicz",
   "license": "MIT",
+  "keywords": [
+    "deno",
+    "denokv",
+    "wrapper"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skorotkiewicz/DenoKvClient.git"
+  },
+  "bugs": {
+    "url": "https://github.com/skorotkiewicz/DenoKvClient/issues"
+  },
+  "homepage": "https://github.com/skorotkiewicz/DenoKvClient#readme",
   "dependencies": {
     "@deno/kv": "^0.8.3",
     "dotenv": "^16.4.5",
     "uuid": "^11.0.3",
     "zod": "^3.23.8"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "dist"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://paypal.me/skorotkiewicz"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "rollup": "^4.28.0"
   }
 }
