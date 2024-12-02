@@ -1,6 +1,6 @@
 {
   "name": "denokvclient",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A simple client wrapper for the Deno KV (Key-Value) store.",
   "scripts": {
@@ -22,13 +22,7 @@
     "url": "https://github.com/skorotkiewicz/DenoKvClient/issues"
   },
   "homepage": "https://github.com/skorotkiewicz/DenoKvClient#readme",
-  "dependencies": {
-    "@deno/kv": "^0.8.3",
-    "dotenv": "^16.4.5",
-    "uuid": "^11.0.3",
-    "zod": "^3.23.8"
-  },
-  "main": "dist/cjs/index.js",
+  "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
   "files": [
     "dist"
