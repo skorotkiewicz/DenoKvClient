@@ -4,7 +4,8 @@
   "type": "module",
   "description": "A simple client wrapper for the Deno KV (Key-Value) store.",
   "scripts": {
-    "rollup": "rollup -c"
+    "rollup": "rollup -c",
+    "prepare": "rollup -c"
   },
   "author": "Sebastian Korotkiewicz",
   "license": "MIT",

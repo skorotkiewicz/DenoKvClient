@@ -8,6 +8,8 @@ To use the DenoKvClient, you need install a dependency in your project:
 
 ```
 yarn add @deno/kv zod dotenv uuid
+or
+yarn add denokvclient
 ```
 
 I'm use this on my own [Deno KV](https://github.com/denoland/denokv) server.
