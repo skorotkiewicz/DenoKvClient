@@ -153,6 +153,8 @@ const order = {
     //       startsWith: "john",
     //     },
     //   },
+    //   skip: 2,
+    //   take: 2,
     // });
     // console.log(
     //   "Users with email starting with 'john':",
