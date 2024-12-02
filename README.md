@@ -1,9 +1,5 @@
 # DenoKvClient - Wrapper for Deno KV
 
-> [!NOTE]  
-> I found a better project that supports almost all operations like Prisma for Deno KV, I recommend: [pentagon by skoshx](https://github.com/skoshx/pentagon)
-> When I created this project, I didn't know about it yet.
-
 A simple client wrapper for the Deno KV (Key-Value) store, written in JavaScript. This library provides a convenient way to interact with the Deno KV service, with support for creating, reading, updating, and deleting data.
 
 ## Installation
@@ -11,7 +7,7 @@ A simple client wrapper for the Deno KV (Key-Value) store, written in JavaScript
 To use the DenoKvClient, you need install a dependency in your project:
 
 ```
-yarn add @deno/kv
+yarn add @deno/kv zod dotenv uuid
 ```
 
 I'm use this on my own [Deno KV](https://github.com/denoland/denokv) server.
@@ -21,13 +17,47 @@ I'm use this on my own [Deno KV](https://github.com/denoland/denokv) server.
 1. Import the `DenoKvClient` class:
 
 ```js
-import { DenoKvClient } from "./DenoKvClient.js";
+import { z } from "zod";
+import { DenoKvClient, createSchema } from "./DenoKvClient.js";
+import "dotenv/config";
+import { v4 as uuidv4 } from "uuid";
 ```
 
 2. Initialize the client with the Deno KV service URL and an access token:
 
 ```js
-const client = new DenoKvClient();
+// Define your schemas
+export const User = z.object({
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+export const Order = z.object({
+  id: z.optional(z.string().uuid()).describe("primary"),
+  createdAt: z.optional(z.date()),
+  name: z.string(),
+  userId: z.string().uuid(),
+});
+
+// Define schemas with relationscd
+const schema = createSchema().model({
+  users: {
+    schema: User,
+    relations: {
+      orders: ["orders", [Order], "id", "userId"],
+    },
+  },
+  orders: {
+    schema: Order,
+    relations: {
+      user: ["users", User, "userId", "id"],
+    },
+  },
+});
+
+const client = new DenoKvClient(schema);
 await client.init("http://0.0.0.0:4512", "your_access_token_here");
 ```
 
@@ -81,6 +111,31 @@ const updatedUser = await client.users.update({
   },
 });
 console.log(updatedUser);
+
+////////////// matchesWhere //////////////
+
+// Find users with email starting with "john"
+const usersStartingWithJohn = await client.users.findMany({
+  where: {
+    email: {
+      startsWith: "john",
+    },
+  },
+});
+console.log("Users with email starting with 'john':", usersStartingWithJohn);
+
+// Filtered users
+const filteredUsers = await client.users.findMany({
+  where: {
+    name: {
+      contains: "John", // name contains "John"
+    },
+    email: {
+      endsWith: "@example.com", // email ends with "@example.com"
+    },
+  },
+});
+console.log("Filtered users:", filteredUsers);
 ```
 
 ## Features
