@@ -42,7 +42,7 @@ export const Order = z.object({
   userId: z.string().uuid(),
 });
 
-// Define schemas with relationscd
+// Define schemas with relations
 const schema = createSchema().model({
   users: {
     schema: User,
