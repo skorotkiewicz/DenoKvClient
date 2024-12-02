@@ -7,7 +7,7 @@ A simple client wrapper for the Deno KV (Key-Value) store, written in JavaScript
 To use the DenoKvClient, you need install a dependency in your project:
 
 ```
-yarn add @deno/kv zod dotenv uuid
+yarn add denokvclient
 ```
 
 I'm use this on my own [Deno KV](https://github.com/denoland/denokv) server.
@@ -17,8 +17,9 @@ I'm use this on my own [Deno KV](https://github.com/denoland/denokv) server.
 1. Import the `DenoKvClient` class:
 
 ```js
+import { DenoKvClient, createSchema } from "denokvclient";
+
 import { z } from "zod";
-import { DenoKvClient, createSchema } from "./DenoKvClient.js";
 import "dotenv/config";
 import { v4 as uuidv4 } from "uuid";
 ```
@@ -41,7 +42,7 @@ export const Order = z.object({
   userId: z.string().uuid(),
 });
 
-// Define schemas with relationscd
+// Define schemas with relations
 const schema = createSchema().model({
   users: {
     schema: User,
